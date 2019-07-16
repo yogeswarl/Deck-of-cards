@@ -1,21 +1,21 @@
 const express = require('express');
-const app =express();
-const path = require('path');
+const app = express();
+const path = require('path')
 const bodyParser = require('body-parser');
-const mongodb =require('mongodb');
+const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
-const URI = process.env.MONGODB_URI || 'mongodb://localhost/database';
+const URI = process.env.MONGODB_URI || 'mongodb://heroku_08879xmq:hh9bico0pvib5tumb1f6vsohj@ds257054.mlab.com:57054/heroku_08879xmq';
 const PORT = process.env.PORT || 5000;
 const DB_NAME = process.env.DB_NAME;
 
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.get('/secret',(req,res) => res.sendFile(path.join((__dirname, 'secret.html'))));
+app.get('/secret', (req, res) => res.sendFile(path.join(__dirname, 'secret.html')));
 
-app.post('/secret',(req,res) => {
-    MongoClient.connect(URI, {useNewUrlParser : true }, (err,client) => {
-        if(err){
+app.post('/secret', (req, res) => {
+    MongoClient.connect(URI, { useNewUrlParser: true }, (err, client) => {
+        if (err) {
             console.log(err);
         } else {
             const db = client.db(DB_NAME);
@@ -24,48 +24,47 @@ app.post('/secret',(req,res) => {
                 name: req.body.name.toLowerCase(),
                 card: req.body.number + '_of_' + req.body.suit
             };
-            collection.insertOne(entry, (err,result) => {
-                if(err){
+            collection.insertOne(entry, (err, result) => {
+                if (err) {
                     console.log(err);
-                }else {
-                    res.send('INSERTED into Database');
+                } else {
+                    res.send('Inserted into database');
                 }
             })
-            db.close()
+            client.close();
         }
     })
 })
 
-app.get('/:param*', (req,res) => {
+app.get('/:param*', (req, res) => {
     const name = req.url.slice(1).toLowerCase();
 
-    MongoClient.connect(URI, {useNewUrlParser:true},(err, client) => {
-        if(err){
+    MongoClient.connect(URI, { useNewUrlParser: true }, (err, client) => {
+        if (err) {
             console.log(err);
-        } else{
+        } else {
             const db = client.db(DB_NAME);
             const collection = db.collection('names');
 
-            if(name === 'deleteall'){
+            if (name === 'deleteall') {
                 collection.remove({});
                 res.send('database reset');
             } else {
-                collection.find({name:name}).toArray((err,result)=> {
-                    if(err){
+                collection.find({name: name}).toArray((err, result) => {
+                    if (err) {
                         console.log(err);
-                    } else if(result.length) {
-                        const card = result[result.length -1].card + ',png';
+                    } else if (result.length) {
+                        const card = result[result.length-1].card + '.png';
                         res.sendFile(path.join(__dirname + '/cards/' + card));
-                    }
-                    else {
+                    } else {
                         res.sendStatus(404);
                     }
-                    db.close();
-                }); 
+
+                    client.close();
+                })
             }
         }
-    });
-});
+    })
+})
 
-app.listen(PORT, () => console.log(`server listening on port ${PORT}`));
-
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
