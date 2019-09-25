@@ -4,7 +4,7 @@ const path = require('path')
 const bodyParser = require('body-parser');
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
-const URI = process.env.MONGODB_URI || 'mongodb://heroku_08879xmq:hh9bico0pvib5tumb1f6vsohj@ds257054.mlab.com:57054/heroku_08879xmq';
+const URI = process.env.MONGODB_URI || 'mongodb://heroku_k1dwg28j:93eafjeg72kuhknoba9bqeufi6@ds151997.mlab.com:51997/heroku_k1dwg28j';
 const PORT = process.env.PORT || 5000;
 const DB_NAME = process.env.DB_NAME;
 
